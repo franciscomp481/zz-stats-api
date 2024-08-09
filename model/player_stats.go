@@ -8,6 +8,13 @@ type ClubStats struct {
 }
 
 type PlayerStats struct {
-	PlayerName string                 `json:"player_name"`
-	Seasons    map[string][]ClubStats `json:"seasons"`
+	PlayerName  string                     `json:"player_name"`
+	Seasons     map[string][]ClubStats     `json:"seasons"`
+	Tournaments map[string]TournamentStats `json:"tournaments"`
+}
+
+type TournamentStats struct {
+	MatchesPlayed int `json:"matches_played"`
+	GoalsScored   int `json:"goals_scored"`
+	Assists       int `json:"assists"`
 }

@@ -1,7 +1,6 @@
 package webscrapper
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -42,14 +41,15 @@ func GetPlayerPage(playerURL string) (*goquery.Document, error) {
 func FetchPlayerStats(doc *goquery.Document) (model.PlayerStats, error) {
 	playerName := doc.Find("div.zz-enthdr-data span.name").Contents().Not("span.number").Text()
 	playerStats := model.PlayerStats{
-		PlayerName: playerName,
-		Seasons:    make(map[string][]model.ClubStats),
+		PlayerName:  playerName,
+		Seasons:     make(map[string][]model.ClubStats),
+		Tournaments: make(map[string]model.TournamentStats),
 	}
 
 	var lastSeason string
 
 	// Extract data from the player stats table
-	doc.Find("table.career").Each(func(i int, table *goquery.Selection) {
+	doc.Find("div.section:contains('Futebol')").NextAllFiltered("table.career").First().Each(func(i int, table *goquery.Selection) {
 		table.Find("tr").Each(func(j int, row *goquery.Selection) {
 			var season, club string
 			var matchesPlayed, goalsScored, assists int
@@ -81,8 +81,8 @@ func FetchPlayerStats(doc *goquery.Document) (model.PlayerStats, error) {
 			}
 
 			// Debugging statements
-			fmt.Printf("Season: %s, Club: %s, Matches Played: %d, Goals Scored: %d, Assists: %d\n",
-				season, club, matchesPlayed, goalsScored, assists)
+			//fmt.Printf("Season: %s, Club: %s, Matches Played: %d, Goals Scored: %d, Assists: %d\n",
+			//	season, club, matchesPlayed, goalsScored, assists)
 
 			if season != "" {
 				clubStats := model.ClubStats{
@@ -92,6 +92,40 @@ func FetchPlayerStats(doc *goquery.Document) (model.PlayerStats, error) {
 					Assists:       assists,
 				}
 				playerStats.Seasons[season] = append(playerStats.Seasons[season], clubStats)
+			}
+		})
+	})
+
+	doc.Find("div.section:contains('EDIÇÕES')").NextAllFiltered("table.career").First().Each(func(i int, table *goquery.Selection) {
+		table.Find("tr").Each(func(j int, row *goquery.Selection) {
+			var tournament_name string
+			var matchesPlayed, goalsScored, assists int
+
+			row.Find("td").Each(func(k int, cell *goquery.Selection) {
+				text := strings.TrimSpace(cell.Text()) // Trim whitespace
+				switch k {
+				case 0:
+					// skip
+				case 1:
+					// skip
+				case 2:
+					tournament_name = text
+				case 3:
+					matchesPlayed, _ = strconv.Atoi(text)
+				case 4:
+					goalsScored, _ = strconv.Atoi(text)
+				case 5:
+					assists, _ = strconv.Atoi(text)
+				}
+			})
+
+			if tournament_name != "" {
+				TournamentStats := model.TournamentStats{
+					MatchesPlayed: matchesPlayed,
+					GoalsScored:   goalsScored,
+					Assists:       assists,
+				}
+				playerStats.Tournaments[tournament_name] = TournamentStats
 			}
 		})
 	})
