@@ -22,7 +22,7 @@ func main() {
 		})
 	})
 
-	server.GET("/player", statsController.GetPlayerStats)
+	server.GET("/playerstats", statsController.GetPlayerStats)
 
 	server.Run(":8081")
 }

@@ -6,7 +6,6 @@ import (
 
 	"github.com/franciscomp481/zerozero-stats-api/model"
 	"github.com/franciscomp481/zerozero-stats-api/usecase"
-	"github.com/franciscomp481/zerozero-stats-api/webscrapper"
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,27 +31,29 @@ func (s *stats_controller) GetPlayerStats(ctx *gin.Context) {
 
 	}
 
-	fullURL, err := webscrapper.SearchPlayer(playerName, index_int)
-	if err != nil {
-		panic(err)
+	if playerName == "" {
+		response := model.Response{
+			Message: "name parameter is required",
+		}
+		ctx.JSON(http.StatusBadRequest, response)
+		return
 	}
 
-	doc, err := webscrapper.GetPlayerPage(fullURL)
-	if err != nil {
-		panic(err)
-	}
-
-	playerStats, err := webscrapper.FetchPlayerStats(doc)
+	playerStats, err := s.usecase.GetPlayerStats(playerName, index_int)
 
 	if err != nil {
-		panic(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
 	}
 
-	// Marshal playerStats to JSON
-	//jsonData, err := json.MarshalIndent(playerStats, "", "  ")
-	//if err != nil {
-	//	log.Fatalf("Error marshalling playerStats to JSON: %v", err)
-	//}
+	if playerStats.PlayerName == "" || len(playerStats.Seasons) == 0 {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"error": "Player not found",
+		})
+		return
+	}
 
 	ctx.JSON(http.StatusOK, playerStats)
 }
