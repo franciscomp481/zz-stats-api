@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  go-app:
+    container_name: zz-api
+    image: zz-webscrapping-api-otimized
+    build:  .
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
