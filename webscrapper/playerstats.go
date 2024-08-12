@@ -35,7 +35,6 @@ func GetPlayerPage(playerURL string) (*goquery.Document, error) {
 	}
 
 	return doc, nil
-
 }
 
 func FetchPlayerStats(doc *goquery.Document) (model.PlayerStats, error) {
@@ -49,7 +48,10 @@ func FetchPlayerStats(doc *goquery.Document) (model.PlayerStats, error) {
 	var lastSeason string
 
 	// Extract data from the player stats table
-	doc.Find("div.section:contains('Futebol')").NextAllFiltered("table.career").First().Each(func(i int, table *goquery.Selection) {
+	doc.Find("div.section").FilterFunction(func(i int, s *goquery.Selection) bool {
+		sectionText := s.Text()
+		return strings.Contains(sectionText, "Futsal") || strings.Contains(sectionText, "Futebol")
+	}).NextAllFiltered("table.career").First().Each(func(i int, table *goquery.Selection) {
 		table.Find("tr").Each(func(j int, row *goquery.Selection) {
 			var season, club string
 			var matchesPlayed, goalsScored, assists int
@@ -79,10 +81,6 @@ func FetchPlayerStats(doc *goquery.Document) (model.PlayerStats, error) {
 			if season == "" {
 				season = lastSeason
 			}
-
-			// Debugging statements
-			//fmt.Printf("Season: %s, Club: %s, Matches Played: %d, Goals Scored: %d, Assists: %d\n",
-			//	season, club, matchesPlayed, goalsScored, assists)
 
 			if season != "" {
 				clubStats := model.ClubStats{

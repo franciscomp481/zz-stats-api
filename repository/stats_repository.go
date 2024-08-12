@@ -13,10 +13,10 @@ func NewStatsRepository() StatsRepository {
 	return StatsRepository{}
 }
 
-func (r *StatsRepository) GetPlayerStats(playerName string, index int) (*model.PlayerStats, error) {
+func (r *StatsRepository) GetPlayerStats(filters model.PlayerFilters) (*model.PlayerStats, error) {
 	// insert webscrapper here
 
-	fullURL, err := webscrapper.SearchPlayer(playerName, index)
+	fullURL, err := webscrapper.SearchPlayer(filters)
 	if err != nil {
 		panic(err)
 	}

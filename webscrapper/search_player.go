@@ -3,15 +3,27 @@ package webscrapper
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/franciscomp481/zerozero-stats-api/model"
 )
 
-func SearchPlayer(playerName string, index int) (string, error) {
-	baseURL := "https://www.zerozero.pt/jqc_search_solr.php"
+func SearchPlayer(filters model.PlayerFilters) (string, error) {
+	baseURL := "https://www.zerozero.pt/jogadores"
 
+	// Replace spaces with '+' and handle special characters manually
+	encodedPlayerName := strings.ReplaceAll(filters.PlayerName, " ", "+")
+	encodedPlayerName = strings.ReplaceAll(encodedPlayerName, "ç", "%E7")
+	searchURL := ""
+	nationality := strings.ToLower(filters.Nationality)
+
+	if nationality == "" {
+		searchURL = fmt.Sprintf("%s?search_txt=%s&order=popular", baseURL, encodedPlayerName)
+	} else {
+		searchURL = fmt.Sprintf("%s/%s?search_txt=%s&order=popular", baseURL, nationality, encodedPlayerName)
+	}
 	// Construct the URL with the search query
-	searchURL := fmt.Sprintf("%s?queryString=%s", baseURL, playerName)
 
 	// Send the GET request
 	resp, err := http.Get(searchURL)
@@ -27,10 +39,10 @@ func SearchPlayer(playerName string, index int) (string, error) {
 	}
 
 	// Extract the URL from the specified index in the search results
-	selection := doc.Find("a").Eq(index)
+	selection := doc.Find(".zz-search-item").Eq(filters.Index).Find("a")
 	firstURL, exists := selection.Attr("href")
 	if !exists {
-		return "", fmt.Errorf("no results found at index %d", index)
+		return "", fmt.Errorf("no results found at index %d", filters.Index)
 	}
 
 	// Prepend the base URL to the relative URL

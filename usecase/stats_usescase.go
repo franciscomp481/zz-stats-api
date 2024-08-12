@@ -13,8 +13,8 @@ func NewStatsUsecase(repo repository.StatsRepository) StatsUsecase {
 	return StatsUsecase{repository: repo}
 }
 
-func (u *StatsUsecase) GetPlayerStats(playerName string, index int) (*model.PlayerStats, error) {
-	playerStats, err := u.repository.GetPlayerStats(playerName, index)
+func (u *StatsUsecase) GetPlayerStats(filters model.PlayerFilters) (*model.PlayerStats, error) {
+	playerStats, err := u.repository.GetPlayerStats(filters)
 
 	if err != nil {
 		return nil, err

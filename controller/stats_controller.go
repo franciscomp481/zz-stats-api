@@ -19,7 +19,7 @@ func NewStatsController(usecase usecase.StatsUsecase) stats_controller {
 
 func (s *stats_controller) GetPlayerStats(ctx *gin.Context) {
 
-	playerName, index := ctx.Query("name"), ctx.Query("index")
+	playerName, index, nationality := ctx.Query("name"), ctx.Query("index"), ctx.Query("nationality")
 
 	index_int, err := strconv.Atoi(index)
 	if err != nil {
@@ -39,7 +39,13 @@ func (s *stats_controller) GetPlayerStats(ctx *gin.Context) {
 		return
 	}
 
-	playerStats, err := s.usecase.GetPlayerStats(playerName, index_int)
+	playerFilters := model.PlayerFilters{
+		PlayerName:  playerName,
+		Index:       index_int,
+		Nationality: nationality,
+	}
+
+	playerStats, err := s.usecase.GetPlayerStats(playerFilters)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
