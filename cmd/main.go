@@ -2,9 +2,12 @@ package main
 
 import (
 	"github.com/franciscomp481/zerozero-stats-api/controller"
+	_ "github.com/franciscomp481/zerozero-stats-api/docs" // Import the generated docs package
 	"github.com/franciscomp481/zerozero-stats-api/repository"
 	"github.com/franciscomp481/zerozero-stats-api/usecase"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
@@ -21,6 +24,8 @@ func main() {
 			"message": "pong",
 		})
 	})
+
+	server.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	server.GET("/playerstats", statsController.GetPlayerStats)
 
