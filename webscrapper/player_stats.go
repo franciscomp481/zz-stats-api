@@ -1,47 +1,18 @@
 package webscrapper
 
 import (
-	"log"
-	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/franciscomp481/zerozero-stats-api/model"
-	"golang.org/x/net/html/charset"
 )
-
-// Search for the player by name and return the URL
-
-func GetPlayerPage(playerURL string) (*goquery.Document, error) {
-
-	// Fetch the HTML content of the player's profile page
-	resp, err := http.Get(playerURL)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer resp.Body.Close()
-
-	// Read the response body with the correct encoding
-	reader, err := charset.NewReader(resp.Body, resp.Header.Get("Content-Type"))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Parse the HTML content
-	doc, err := goquery.NewDocumentFromReader(reader)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return doc, nil
-}
 
 func FetchPlayerStats(doc *goquery.Document) (model.PlayerStats, error) {
 	playerName := doc.Find("div.zz-enthdr-data span.name").Contents().Not("span.number").Text()
 	playerStats := model.PlayerStats{
 		PlayerName:  playerName,
-		Seasons:     make(map[string][]model.ClubStats),
+		Seasons:     make(map[string][]model.PlayerClubStats),
 		Tournaments: make(map[string]model.TournamentStats),
 	}
 
@@ -83,7 +54,7 @@ func FetchPlayerStats(doc *goquery.Document) (model.PlayerStats, error) {
 			}
 
 			if season != "" {
-				clubStats := model.ClubStats{
+				clubStats := model.PlayerClubStats{
 					Club:          club,
 					MatchesPlayed: matchesPlayed,
 					GoalsScored:   goalsScored,

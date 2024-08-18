@@ -21,7 +21,7 @@ func (r *StatsRepository) GetPlayerStats(filters model.PlayerFilters) (*model.Pl
 		panic(err)
 	}
 
-	doc, err := webscrapper.GetPlayerPage(fullURL)
+	doc, err := webscrapper.GetPage(fullURL)
 	if err != nil {
 		panic(err)
 	}

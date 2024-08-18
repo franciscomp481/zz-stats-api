@@ -26,7 +26,7 @@ func NewStatsController(usecase usecase.StatsUsecase) stats_controller {
 // @Accept  json
 // @Produce  json
 // @Param name query string true "Player Name"
-// @Param index query string true "Index"
+// @Param index query string false "Index"
 // @Param nationality query string false "Nationality"
 // @Success 200 {object} model.PlayerStats
 // @Failure 400 {object} model.Response
