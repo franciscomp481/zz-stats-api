@@ -1,0 +1,90 @@
+definitions:
+  gin.H:
+    additionalProperties: {}
+    type: object
+  model.ClubStats:
+    properties:
+      assists:
+        type: integer
+      club:
+        type: string
+      goals_scored:
+        type: integer
+      matches_played:
+        type: integer
+    type: object
+  model.PlayerStats:
+    properties:
+      player_name:
+        type: string
+      seasons:
+        additionalProperties:
+          items:
+            $ref: '#/definitions/model.ClubStats'
+          type: array
+        type: object
+      tournaments:
+        additionalProperties:
+          $ref: '#/definitions/model.TournamentStats'
+        type: object
+    type: object
+  model.Response:
+    properties:
+      message:
+        type: string
+    type: object
+  model.TournamentStats:
+    properties:
+      assists:
+        type: integer
+      goals_scored:
+        type: integer
+      matches_played:
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /playerstats:
+    get:
+      consumes:
+      - application/json
+      description: Get statistics for a player based on name, index, and nationality
+      parameters:
+      - description: Player Name
+        in: query
+        name: name
+        required: true
+        type: string
+      - description: Index
+        in: query
+        name: index
+        required: true
+        type: string
+      - description: Nationality
+        in: query
+        name: nationality
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PlayerStats'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Get player statistics
+      tags:
+      - stats
+swagger: "2.0"
