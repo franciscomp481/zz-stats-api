@@ -1,13 +1,13 @@
 package model
 
 type ClubStats struct {
-	TeamName                  string                               `json:"team_name"`
-	Season                    string                               `json:"season"`
-	ResultStats               ResultStats                          `json:"result_stats"`
-	ResultStatsPerCompetition map[string]ResultStatsPerCompetition `json:"result_stats_per_competition"`
-	MarketValue               string                               `json:"market_value"`
-	LastGames                 map[string]LastGames                 `json:"last_games"`
-	NextGames                 map[string]NextGames                 `json:"next_games"`
+	TeamName                  string                 `json:"team_name"`
+	Season                    string                 `json:"season"`
+	ResultStats               ResultStats            `json:"result_stats"`
+	ResultStatsPerCompetition map[string]ResultStats `json:"result_stats_per_competition"`
+	MarketValue               string                 `json:"market_value"`
+	LastGames                 map[string]LastGames   `json:"last_games"`
+	NextGames                 map[string]NextGames   `json:"next_games"`
 }
 
 type NextGames struct {
@@ -35,9 +35,4 @@ type ResultStats struct {
 	Defeats       int `json:"defeats"`
 	GoalsScored   int `json:"goals_scored"`
 	GoalsConceded int `json:"goals_conceded"`
-}
-
-type ResultStatsPerCompetition struct {
-	Competition string      `json:"competition"`
-	ResultStats ResultStats `json:"result_stats"`
 }

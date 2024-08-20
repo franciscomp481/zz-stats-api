@@ -39,12 +39,16 @@ func FetchClubStats(doc *goquery.Document) (model.ClubStats, error) {
 		})
 	})
 
+	// Initialize the map to store result stats per competition
+	resultStatsPerCompetition := make(map[string]model.ResultStats)
+
+	// Iterate through each row in the table that represents either a competition's stats or the totals
 	doc.Find("div.box h2.header:contains('Resumo') + div.box_table table.zztable.stats tbody tr").Each(func(i int, s *goquery.Selection) {
-		// Find all 'td' elements within this row
+		// Check if the row contains totals by looking for 'td.totals'
 		tds := s.Find("td.totals")
 
-		// Ensure there are enough 'td' elements
 		if tds.Length() >= 6 {
+			// This is the totals row
 			matchesPlayed, err := strconv.Atoi(strings.TrimSpace(tds.Eq(1).Text()))
 			if err != nil {
 				fmt.Println("Error converting MatchesPlayed:", err)
@@ -74,7 +78,7 @@ func FetchClubStats(doc *goquery.Document) (model.ClubStats, error) {
 					fmt.Println("Error converting GoalsConceded:", err)
 				}
 
-				// Populate the ResultStats struct
+				// Populate the ResultStats struct for overall totals
 				stats = model.ResultStats{
 					MatchesPlayed: matchesPlayed,
 					Victories:     victories,
@@ -84,20 +88,79 @@ func FetchClubStats(doc *goquery.Document) (model.ClubStats, error) {
 					GoalsConceded: goalsConceded,
 				}
 
-				// Store the stats in the map
-
-				// fmt.Println("Extracted stats:", stats)
+				// Optionally, store or print the overall totals
+				// fmt.Println("Extracted total stats:", stats)
 			} else {
 				fmt.Println("Unexpected format for goals:", tds.Eq(5).Text())
+			}
+		} else {
+			// Process competition-specific stats
+			tds := s.Find("td.stat")
+
+			if tds.Length() >= 5 {
+				// Extract the competition name
+				competitionName := strings.TrimSpace(s.Find("td.edition div.text a").Text())
+
+				matchesPlayed, err := strconv.Atoi(strings.TrimSpace(tds.Eq(0).Text()))
+				if err != nil {
+					fmt.Println("Error converting MatchesPlayed:", err)
+					return
+				}
+				victories, err := strconv.Atoi(strings.TrimSpace(tds.Eq(1).Text()))
+				if err != nil {
+					fmt.Println("Error converting Victories:", err)
+					return
+				}
+				draws, err := strconv.Atoi(strings.TrimSpace(tds.Eq(2).Text()))
+				if err != nil {
+					fmt.Println("Error converting Draws:", err)
+					return
+				}
+				defeats, err := strconv.Atoi(strings.TrimSpace(tds.Eq(3).Text()))
+				if err != nil {
+					fmt.Println("Error converting Defeats:", err)
+					return
+				}
+
+				// Split the goals data by the "-" character
+				goals := strings.Split(strings.TrimSpace(tds.Eq(4).Text()), "-")
+				if len(goals) == 2 {
+					goalsScored, err := strconv.Atoi(goals[0])
+					if err != nil {
+						fmt.Println("Error converting GoalsScored:", err)
+						return
+					}
+					goalsConceded, err := strconv.Atoi(goals[1])
+					if err != nil {
+						fmt.Println("Error converting GoalsConceded:", err)
+						return
+					}
+
+					// Populate the ResultStats struct for this competition
+					stats := model.ResultStats{
+						MatchesPlayed: matchesPlayed,
+						Victories:     victories,
+						Draws:         draws,
+						Defeats:       defeats,
+						GoalsScored:   goalsScored,
+						GoalsConceded: goalsConceded,
+					}
+
+					// Store the stats in the map under the competition name
+					resultStatsPerCompetition[competitionName] = stats
+				} else {
+					fmt.Println("Unexpected format for goals:", tds.Eq(4).Text())
+				}
 			}
 		}
 	})
 
 	clubStats := model.ClubStats{
-		TeamName:    clubName,
-		Season:      season,
-		MarketValue: market_value,
-		ResultStats: stats,
+		TeamName:                  clubName,
+		Season:                    season,
+		MarketValue:               market_value,
+		ResultStats:               stats,
+		ResultStatsPerCompetition: resultStatsPerCompetition,
 	}
 
 	return clubStats, nil
