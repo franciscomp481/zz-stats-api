@@ -22,3 +22,13 @@ func (u *StatsUsecase) GetPlayerStats(filters model.PlayerFilters) (*model.Playe
 
 	return playerStats, nil
 }
+
+func (u *StatsUsecase) GetClubStats(filters model.ClubFilters) (*model.ClubStats, error) {
+	clubStats, err := u.repository.GetClubStats(filters)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return clubStats, nil
+}

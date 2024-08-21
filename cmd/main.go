@@ -29,5 +29,7 @@ func main() {
 
 	server.GET("/playerstats", statsController.GetPlayerStats)
 
-	server.Run(":8080")
+	server.GET("/clubstats", statsController.GetClubStats)
+
+	server.Run(":8081")
 }

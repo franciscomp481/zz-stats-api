@@ -6,8 +6,8 @@ type ClubStats struct {
 	ResultStats               ResultStats            `json:"result_stats"`
 	ResultStatsPerCompetition map[string]ResultStats `json:"result_stats_per_competition"`
 	MarketValue               string                 `json:"market_value"`
-	LastGames                 map[string]LastGames   `json:"last_games"`
-	NextGames                 map[string]NextGames   `json:"next_games"`
+	LastGames                 []LastGames            `json:"last_games"`
+	NextGames                 []NextGames            `json:"next_games"`
 }
 
 type NextGames struct {
