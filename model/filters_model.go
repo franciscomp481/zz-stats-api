@@ -5,3 +5,8 @@ type PlayerFilters struct {
 	Index       int    `json:"index"`
 	Nationality string `json:"nationality"`
 }
+
+type ClubFilters struct {
+	ClubName string `json:"club_name"`
+	Index    int    `json:"index"`
+}

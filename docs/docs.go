@@ -15,6 +15,62 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/clubstats": {
+            "get": {
+                "description": "Get statistics for a club based on name and index",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stats"
+                ],
+                "summary": "Get club statistics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Club Name",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Index",
+                        "name": "index",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ClubStats"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
         "/playerstats": {
             "get": {
                 "description": "Get statistics for a player based on name, index, and nationality",
@@ -40,8 +96,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Index",
                         "name": "index",
-                        "in": "query",
-                        "required": false
+                        "in": "query"
                     },
                     {
                         "type": "string",
@@ -87,6 +142,87 @@ const docTemplate = `{
         "model.ClubStats": {
             "type": "object",
             "properties": {
+                "last_games": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.LastGames"
+                    }
+                },
+                "market_value": {
+                    "type": "string"
+                },
+                "next_games": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.NextGames"
+                    }
+                },
+                "result_stats": {
+                    "$ref": "#/definitions/model.ResultStats"
+                },
+                "result_stats_per_competition": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/model.ResultStats"
+                    }
+                },
+                "season": {
+                    "type": "string"
+                },
+                "team_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.LastGames": {
+            "type": "object",
+            "properties": {
+                "away_team": {
+                    "type": "string"
+                },
+                "competition": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "form": {
+                    "type": "string"
+                },
+                "home_team": {
+                    "type": "string"
+                },
+                "hour": {
+                    "type": "string"
+                },
+                "result": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.NextGames": {
+            "type": "object",
+            "properties": {
+                "away_team": {
+                    "type": "string"
+                },
+                "competition": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "home_team": {
+                    "type": "string"
+                },
+                "hour": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.PlayerClubStats": {
+            "type": "object",
+            "properties": {
                 "assists": {
                     "type": "integer"
                 },
@@ -112,7 +248,7 @@ const docTemplate = `{
                     "additionalProperties": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/definitions/model.ClubStats"
+                            "$ref": "#/definitions/model.PlayerClubStats"
                         }
                     }
                 },
@@ -129,6 +265,29 @@ const docTemplate = `{
             "properties": {
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "model.ResultStats": {
+            "type": "object",
+            "properties": {
+                "defeats": {
+                    "type": "integer"
+                },
+                "draws": {
+                    "type": "integer"
+                },
+                "goals_conceded": {
+                    "type": "integer"
+                },
+                "goals_scored": {
+                    "type": "integer"
+                },
+                "matches_played": {
+                    "type": "integer"
+                },
+                "victories": {
+                    "type": "integer"
                 }
             }
         },

@@ -21,7 +21,7 @@ func (r *StatsRepository) GetPlayerStats(filters model.PlayerFilters) (*model.Pl
 		panic(err)
 	}
 
-	doc, err := webscrapper.GetPlayerPage(fullURL)
+	doc, err := webscrapper.GetPage(fullURL)
 	if err != nil {
 		panic(err)
 	}
@@ -33,4 +33,25 @@ func (r *StatsRepository) GetPlayerStats(filters model.PlayerFilters) (*model.Pl
 	}
 
 	return &playerStats, nil
+}
+
+func (r *StatsRepository) GetClubStats(filters model.ClubFilters) (*model.ClubStats, error) {
+
+	fullURL, err := webscrapper.SearchClub(filters)
+	if err != nil {
+		panic(err)
+	}
+
+	doc, err := webscrapper.GetPage(fullURL)
+	if err != nil {
+		panic(err)
+	}
+
+	clubStats, err := webscrapper.FetchClubStats(doc)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return &clubStats, nil
 }
