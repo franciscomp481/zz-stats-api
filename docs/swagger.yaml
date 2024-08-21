@@ -4,6 +4,59 @@ definitions:
     type: object
   model.ClubStats:
     properties:
+      last_games:
+        items:
+          $ref: '#/definitions/model.LastGames'
+        type: array
+      market_value:
+        type: string
+      next_games:
+        items:
+          $ref: '#/definitions/model.NextGames'
+        type: array
+      result_stats:
+        $ref: '#/definitions/model.ResultStats'
+      result_stats_per_competition:
+        additionalProperties:
+          $ref: '#/definitions/model.ResultStats'
+        type: object
+      season:
+        type: string
+      team_name:
+        type: string
+    type: object
+  model.LastGames:
+    properties:
+      away_team:
+        type: string
+      competition:
+        type: string
+      date:
+        type: string
+      form:
+        type: string
+      home_team:
+        type: string
+      hour:
+        type: string
+      result:
+        type: string
+    type: object
+  model.NextGames:
+    properties:
+      away_team:
+        type: string
+      competition:
+        type: string
+      date:
+        type: string
+      home_team:
+        type: string
+      hour:
+        type: string
+    type: object
+  model.PlayerClubStats:
+    properties:
       assists:
         type: integer
       club:
@@ -20,7 +73,7 @@ definitions:
       seasons:
         additionalProperties:
           items:
-            $ref: '#/definitions/model.ClubStats'
+            $ref: '#/definitions/model.PlayerClubStats'
           type: array
         type: object
       tournaments:
@@ -32,6 +85,21 @@ definitions:
     properties:
       message:
         type: string
+    type: object
+  model.ResultStats:
+    properties:
+      defeats:
+        type: integer
+      draws:
+        type: integer
+      goals_conceded:
+        type: integer
+      goals_scored:
+        type: integer
+      matches_played:
+        type: integer
+      victories:
+        type: integer
     type: object
   model.TournamentStats:
     properties:
@@ -45,6 +113,43 @@ definitions:
 info:
   contact: {}
 paths:
+  /clubstats:
+    get:
+      consumes:
+      - application/json
+      description: Get statistics for a club based on name and index
+      parameters:
+      - description: Club Name
+        in: query
+        name: name
+        required: true
+        type: string
+      - description: Index
+        in: query
+        name: index
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ClubStats'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Get club statistics
+      tags:
+      - stats
   /playerstats:
     get:
       consumes:
@@ -59,7 +164,6 @@ paths:
       - description: Index
         in: query
         name: index
-        required: true
         type: string
       - description: Nationality
         in: query
