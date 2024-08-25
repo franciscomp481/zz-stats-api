@@ -155,58 +155,64 @@ func FetchClubStats(doc *goquery.Document) (model.ClubStats, error) {
 		}
 	})
 
-	//lastGames := make(map[string]model.LastGames)
+	// Define the slice to store next games
+	// Define slices to store the next and last games
 	NextGames := make([]model.NextGames, 0)
-
-	doc.Find("div.box h2.header:contains('Jogos') + div.box_table tbody tr").Slice(0, 3).Each(func(i int, s *goquery.Selection) {
-		tds := s.Find("td")
-
-		date := strings.TrimSpace(tds.Eq(1).Text())
-		hour := strings.TrimSpace(tds.Eq(2).Text())
-		if hour == "" {
-			hour = "N/A"
-		}
-		competition := strings.TrimSpace(tds.Eq(3).Text())
-		homeTeam := strings.TrimSpace(tds.Eq(4).Text())
-		awayTeam := strings.TrimSpace(tds.Eq(8).Text())
-
-		nextGames := model.NextGames{
-			Date:        date,
-			Hour:        hour,
-			Competition: competition,
-			HomeTeam:    homeTeam,
-			AwayTeam:    awayTeam,
-		}
-
-		NextGames = append(NextGames, nextGames)
-	})
-
-	totalRows := doc.Find("div.box h2.header:contains('Jogos') + div.box_table tbody tr").Length()
-
 	LastGames := make([]model.LastGames, 0)
 
-	doc.Find("div.box h2.header:contains('Jogos') + div.box_table tbody tr").Slice(totalRows-3, totalRows).Each(func(i int, s *goquery.Selection) {
+	// Iterate over each row in the table
+	doc.Find("div.box h2.header:contains('Jogos') + div.box_table tbody tr").Each(func(i int, s *goquery.Selection) {
 		tds := s.Find("td")
 
-		form := strings.TrimSpace(tds.Eq(0).Text())
-		date := strings.TrimSpace(tds.Eq(1).Text())
-		hour := strings.TrimSpace(tds.Eq(2).Text())
-		competition := strings.TrimSpace(tds.Eq(3).Text())
-		homeTeam := strings.TrimSpace(tds.Eq(4).Text())
-		result := strings.TrimSpace(tds.Eq(6).Text())
-		awayTeam := strings.TrimSpace(tds.Eq(8).Text())
+		// Check the class of the first td to determine the type of game
+		gameType := strings.TrimSpace(tds.Eq(0).AttrOr("class", ""))
 
-		lastGames := model.LastGames{
-			Form:        form,
-			Date:        date,
-			Hour:        hour,
-			Competition: competition,
-			HomeTeam:    homeTeam,
-			Result:      result,
-			AwayTeam:    awayTeam,
+		if gameType == "h2h" {
+			// Process next game
+			date := strings.TrimSpace(tds.Eq(1).Text())
+			hour := strings.TrimSpace(tds.Eq(2).Text())
+			if hour == "" {
+				hour = "N/A"
+			}
+			competition := strings.TrimSpace(tds.Eq(3).Text())
+			homeTeam := strings.TrimSpace(tds.Eq(4).Text())
+			awayTeam := strings.TrimSpace(tds.Eq(8).Text())
+
+			if date != "" && competition != "" && homeTeam != "" && awayTeam != "" {
+				nextGames := model.NextGames{
+					Date:        date,
+					Hour:        hour,
+					Competition: competition,
+					HomeTeam:    homeTeam,
+					AwayTeam:    awayTeam,
+				}
+
+				NextGames = append(NextGames, nextGames)
+			}
+		} else if gameType == "form" {
+			// Process last game
+			form := strings.TrimSpace(tds.Eq(0).Text())
+			date := strings.TrimSpace(tds.Eq(1).Text())
+			hour := strings.TrimSpace(tds.Eq(2).Text())
+			competition := strings.TrimSpace(tds.Eq(3).Text())
+			homeTeam := strings.TrimSpace(tds.Eq(4).Text())
+			result := strings.TrimSpace(tds.Eq(6).Text())
+			awayTeam := strings.TrimSpace(tds.Eq(8).Text())
+
+			if date != "" && competition != "" && homeTeam != "" && awayTeam != "" {
+				lastGames := model.LastGames{
+					Form:        form,
+					Date:        date,
+					Hour:        hour,
+					Competition: competition,
+					HomeTeam:    homeTeam,
+					Result:      result,
+					AwayTeam:    awayTeam,
+				}
+
+				LastGames = append(LastGames, lastGames)
+			}
 		}
-
-		LastGames = append(LastGames, lastGames)
 	})
 
 	clubStats := model.ClubStats{
