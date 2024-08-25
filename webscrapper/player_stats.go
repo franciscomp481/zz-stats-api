@@ -18,6 +18,10 @@ func FetchPlayerStats(doc *goquery.Document) (model.PlayerStats, error) {
 
 	var lastSeason string
 
+	totalGoals := 0
+	totalAssists := 0
+	totalMatches := 0
+
 	// Extract data from the player stats table
 	doc.Find("div.section").FilterFunction(func(i int, s *goquery.Selection) bool {
 		sectionText := s.Text()
@@ -61,6 +65,9 @@ func FetchPlayerStats(doc *goquery.Document) (model.PlayerStats, error) {
 					Assists:       assists,
 				}
 				playerStats.Seasons[season] = append(playerStats.Seasons[season], clubStats)
+				totalMatches += matchesPlayed
+				totalGoals += goalsScored
+				totalAssists += assists
 			}
 		})
 	})
@@ -95,8 +102,25 @@ func FetchPlayerStats(doc *goquery.Document) (model.PlayerStats, error) {
 					Assists:       assists,
 				}
 				playerStats.Tournaments[tournament_name] = TournamentStats
+				totalGoals += goalsScored
+				totalAssists += assists
+				totalMatches += matchesPlayed
 			}
 		})
+	})
+
+	playerStats.Totals = model.Totals{
+		MatchesPlayed: totalMatches,
+		GoalsScored:   totalGoals,
+		Assists:       totalAssists,
+	}
+
+	doc.Find("div.value").Each(func(i int, s *goquery.Selection) {
+
+		market_value := s.Text()
+
+		playerStats.MartketValue = market_value
+
 	})
 
 	return playerStats, nil
