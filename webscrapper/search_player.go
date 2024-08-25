@@ -13,8 +13,7 @@ func SearchPlayer(filters model.PlayerFilters) (string, error) {
 	baseURL := "https://www.zerozero.pt/jogadores"
 
 	// Replace spaces with '+' and handle special characters manually
-	encodedPlayerName := strings.ReplaceAll(filters.PlayerName, " ", "+")
-	encodedPlayerName = strings.ReplaceAll(encodedPlayerName, "ç", "%E7")
+	encodedPlayerName := EncodeName(filters.PlayerName)
 	searchURL := ""
 	nationality := strings.ToLower(filters.Nationality)
 
