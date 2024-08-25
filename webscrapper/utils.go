@@ -3,6 +3,7 @@ package webscrapper
 import (
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 	"golang.org/x/net/html/charset"
@@ -32,4 +33,13 @@ func GetPage(playerURL string) (*goquery.Document, error) {
 	}
 
 	return doc, nil
+}
+
+func EncodeName(name string) string {
+	encodedName := strings.ReplaceAll(name, " ", "+")
+	encodedName = strings.ReplaceAll(encodedName, "ç", "%E7")
+	encodedName = strings.ReplaceAll(encodedName, "á", "%E1")
+	encodedName = strings.ReplaceAll(encodedName, "à", "%E0")
+	encodedName = strings.ReplaceAll(encodedName, "ã", "%E3")
+	return encodedName
 }

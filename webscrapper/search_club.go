@@ -11,7 +11,9 @@ import (
 func SearchClub(filters model.ClubFilters) (string, error) {
 	baseURL := "https://www.zerozero.pt/equipas"
 
-	searchURL := fmt.Sprintf("%s?search_txt=%s&order=popular", baseURL, filters.ClubName)
+	encondedClubName := EncodeName(filters.ClubName)
+
+	searchURL := fmt.Sprintf("%s?search_txt=%s&order=popular", baseURL, encondedClubName)
 
 	// Send the GET Resquest
 	resp, err := http.Get(searchURL)
